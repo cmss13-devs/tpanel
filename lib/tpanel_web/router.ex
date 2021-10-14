@@ -21,9 +21,10 @@ defmodule TpanelWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", TpanelWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", TpanelWeb do
+    pipe_through :api
+    resources "/branches", BranchController, except: [:new, :edit]
+  end
 
   # Enables LiveDashboard only for development
   #
