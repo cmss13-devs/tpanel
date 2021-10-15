@@ -7,6 +7,7 @@ defmodule Tpanel.GitTools.Branch do
     field :name, :string
     field :refspec, :string
     field :remote, :string
+    field :revision, :string
 
     timestamps()
   end
