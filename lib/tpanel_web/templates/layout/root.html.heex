@@ -5,22 +5,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <%= csrf_meta_tag() %>
-    <%= live_title_tag assigns[:page_title] || "Tpanel", suffix: " · Phoenix Framework" %>
+    <%= live_title_tag assigns[:page_title] || "TPanel" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body>
     <header>
-      <section class="container">
-        <nav>
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
-            <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
-            <% end %>
-          </ul>
-        </nav>
-      </section>
+<div class="flex flex-wrap place-items-center">
+  <section class="relative mx-auto">
+    <nav class="flex justify-between bg-indigo-900 text-white w-screen">
+      <div class="px-5 xl:px-8 py-3 flex w-1/4">
+        <a class="text-3xl font-bold font-heading">
+          TPanel
+        </a>
+        <ul class="hidden md:flex px-4 text-xl mx-auto font-semibold font-heading space-x-8">
+          <li><a class="hover:text-gray-200">Home</a></li>
+          <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+              <li><%= link "Live Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: "hover:text-gray-200" %></li>
+          <% end %>
+        </ul>
+      </div>
+    </nav>
+  </section>
+</div>
     </header>
     <%= @inner_content %>
   </body>
