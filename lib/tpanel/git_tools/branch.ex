@@ -15,7 +15,7 @@ defmodule Tpanel.GitTools.Branch do
   @doc false
   def changeset(branch, attrs) do
     branch
-    |> cast(attrs, [:name, :description, :remote, :refspec])
-    |> validate_required([:name, :description, :remote, :refspec])
+    |> cast(attrs, [:name, :description, :remote, :refspec, :revision])
+    |> validate_required([:name, :description, :remote, :refspec, :revision])
   end
 end
