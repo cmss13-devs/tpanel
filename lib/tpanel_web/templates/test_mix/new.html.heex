@@ -1,5 +1,7 @@
-<h1>New Test mix</h1>
+<div class="p-3">
+<%= link "Back", to: Routes.test_mix_path(@conn, :index), class: "text-white p-1 px-2 bg-red-800 hover:bg-red-900 font-bold rounded inline-block" %>
+<h1 class="text-3xl pl-5 font-heading inline-block">New TestMix</h1>
+</div>
 
 <%= render "form.html", Map.put(assigns, :action, Routes.test_mix_path(@conn, :create)) %>
 
-<span><%= link "Back", to: Routes.test_mix_path(@conn, :index) %></span>

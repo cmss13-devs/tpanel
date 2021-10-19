@@ -1,0 +1,28 @@
+<h2 class="text-xl font-bolded py-2">List of branches</h2>
+
+<div>
+<%= for branch <- @test_mix.branches do %>
+  <div>
+    <button phx-click="delete_branch" {%{"phx-value-branch": branch.id}} class="text-white p-1 px-2 bg-red-600 hover:bg-red-900 font-bold rounded inline-block">Delete</button>
+    <p class="inline-block"><%= branch.name %>: <%= branch.refspec %> @ <%= branch.remote %></p>
+  </div>
+<% end %>
+</div>
+
+<div class="pt-6">
+  <.form let={f} for={@newchangeset} phx-submit="create_branch">
+    <span class="pr-4">
+      <%= submit "New", class: "text-white p-1 px-2 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block" %>
+    </span>
+    <%= text_input f, :name, width: 24, placeholder: "name", class: "inline-block" %>
+    <%= text_input f, :remote, width: 100, placeholder: "remote URL", class: "inline-block" %>
+    <%= text_input f, :refspec, width: 24, placeholder: "branch", class: "inline-block" %>
+    <%= text_input f, :revision, width: 20, placeholder: "revision (optional)", class: "inline-block" %>
+    <div class="text-red-500 font-bold">
+      <%= error_tag f, :name %>
+      <%= error_tag f, :remote %>
+      <%= error_tag f, :refspec %>
+      <%= error_tag f, :revision %>
+    </div>
+  </.form>
+</div>

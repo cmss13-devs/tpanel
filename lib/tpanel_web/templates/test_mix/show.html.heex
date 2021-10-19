@@ -1,18 +1,10 @@
-<h1>Show Test mix</h1>
-
-<ul>
-
-  <li>
-    <strong>Name:</strong>
-    <%= @test_mix.name %>
-  </li>
-
-  <li>
-    <strong>Lastbuild:</strong>
-    <%= @test_mix.lastbuild %>
-  </li>
-
-</ul>
-
-<span><%= link "Edit", to: Routes.test_mix_path(@conn, :edit, @test_mix) %></span> |
-<span><%= link "Back", to: Routes.test_mix_path(@conn, :index) %></span>
+<%= link "Back", to: Routes.test_mix_path(@conn, :index), class: "text-white p-1 px-2 bg-red-800 hover:bg-red-900 font-bold rounded inline-block" %>
+<h1 class="text-3xl pl-4 font-heading inline-block">TestMix: <%= @test_mix.name %></h1>
+<div class="p-2">
+  <div>
+    <%= render "form.html", Map.put(assigns, :action, Routes.test_mix_path(@conn, :update, @test_mix)) %>
+  </div>
+  <div>
+    <%= live_render(@conn, TpanelWeb.BranchLiveView, session: %{"test_mix_id" => @test_mix.id}) %>
+  </div>
+</div>

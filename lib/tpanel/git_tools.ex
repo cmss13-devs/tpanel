@@ -134,6 +134,15 @@ defmodule Tpanel.GitTools do
   def get_test_mix!(id), do: Repo.get!(TestMix, id)
 
   @doc """
+    Returns a test_mix with all associated branches data preloaded
+  """
+  def get_full_test_mix!(id) do
+    get_test_mix!(id) 
+    |> Repo.preload(:branches)
+    |> Repo.preload(:base_branch)
+  end
+
+  @doc """
   Creates a test_mix.
 
   ## Examples
@@ -194,7 +203,16 @@ defmodule Tpanel.GitTools do
       %Ecto.Changeset{data: %TestMix{}}
 
   """
-  def change_test_mix(%TestMix{} = test_mix, attrs \\ %{}) do
+  def change_test_mix(%TestMix{} = test_mix, attrs \\%{}) do
     TestMix.changeset(test_mix, attrs)
+  end
+
+  @doc """
+  Create a branch for a TestMix
+  """ 
+  def create_mix_branch(%TestMix{} = testmix, attrs) do
+    Ecto.build_assoc(testmix, :branches)
+    |> Branch.changeset(attrs)
+    |> Repo.insert()
   end
 end

@@ -18,7 +18,6 @@ defmodule TpanelWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    resources "/branches", BranchController, except: [:new, :edit]
     resources "/mixes", TestMixController
   end
 

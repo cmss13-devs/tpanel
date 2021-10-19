@@ -18,7 +18,7 @@ defmodule TpanelWeb.TestMixController do
     case GitTools.create_test_mix(test_mix_params) do
       {:ok, test_mix} ->
         conn
-        |> put_flash(:info, "Test mix created successfully.")
+        |> put_flash(:info, "TestMix created successfully.")
         |> redirect(to: Routes.test_mix_path(conn, :show, test_mix))
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -27,14 +27,9 @@ defmodule TpanelWeb.TestMixController do
   end
 
   def show(conn, %{"id" => id}) do
-    test_mix = GitTools.get_test_mix!(id)
-    render(conn, "show.html", test_mix: test_mix)
-  end
-
-  def edit(conn, %{"id" => id}) do
-    test_mix = GitTools.get_test_mix!(id)
+    test_mix = GitTools.get_full_test_mix!(id)
     changeset = GitTools.change_test_mix(test_mix)
-    render(conn, "edit.html", test_mix: test_mix, changeset: changeset)
+    render(conn, "show.html", test_mix: test_mix, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "test_mix" => test_mix_params}) do
@@ -43,7 +38,7 @@ defmodule TpanelWeb.TestMixController do
     case GitTools.update_test_mix(test_mix, test_mix_params) do
       {:ok, test_mix} ->
         conn
-        |> put_flash(:info, "Test mix updated successfully.")
+        |> put_flash(:info, "TestMix updated successfully.")
         |> redirect(to: Routes.test_mix_path(conn, :show, test_mix))
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -56,7 +51,7 @@ defmodule TpanelWeb.TestMixController do
     {:ok, _test_mix} = GitTools.delete_test_mix(test_mix)
 
     conn
-    |> put_flash(:info, "Test mix deleted successfully.")
+    |> put_flash(:info, "TestMix deleted successfully.")
     |> redirect(to: Routes.test_mix_path(conn, :index))
   end
 end

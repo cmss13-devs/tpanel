@@ -3,24 +3,25 @@ defmodule Tpanel.Repo.Migrations.Base do
 
   def change do
 
-    create table(:testmixes) do
-      add :name, :string
-      add :lastbuild, :date
-      add :basebranch, :string
-      timestamps()
-    end
-
     create table(:branches) do
       add :name, :string
-      add :description, :string
       add :remote, :string
       add :refspec, :string
       add :revision, :string
-      add :mix, references(:testmixes)
+    end
+
+    create table(:testmixes) do
+      add :name, :string
+      add :lastbuild, :date
+      add :base_branch_id, references(:branches, on_delete: :nilify_all)
       timestamps()
     end
-    
-    create unique_index(:branches, [:name])
+
+    alter table(:branches) do    
+      add :test_mix_id, references(:testmixes, on_delete: :delete_all)
+    end
+
     create unique_index(:testmixes, [:name])
+    create unique_index(:branches, [:test_mix_id, :name])
   end
 end

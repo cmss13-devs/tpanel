@@ -1,3 +1,4 @@
+<div class="p-2">
 <.form let={f} for={@changeset} action={@action}>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
@@ -5,15 +6,18 @@
     </div>
   <% end %>
 
-  <%= label f, :name %>
-  <%= text_input f, :name %>
-  <%= error_tag f, :name %>
-
-  <%= label f, :lastbuild %>
-  <%= date_select f, :lastbuild %>
-  <%= error_tag f, :lastbuild %>
-
-  <div>
-    <%= submit "Save" %>
+  <div class="py-5">
+    <div class="mb-2">
+      <%= label f, :name, class: "font-bold pr-4 block" %>
+      <%= text_input f, :name, class: "border rounded" %>
+      <span class="block text-red-500 font-bold">
+        <%= error_tag f, :name %>
+      </span>
+    </div>
+  </div>
+  
+  <div class="pb-4">
+    <%= submit "Save", class: "text-white p-1 px-5 bg-blue-800 hover:bg-red-600 font-bold rounded" %>
   </div>
 </.form>
+</div>
