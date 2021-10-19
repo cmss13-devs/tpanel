@@ -62,4 +62,60 @@ defmodule Tpanel.GitToolsTest do
       assert %Ecto.Changeset{} = GitTools.change_branch(branch)
     end
   end
+
+  describe "testmixes" do
+    alias Tpanel.GitTools.TestMix
+
+    import Tpanel.GitToolsFixtures
+
+    @invalid_attrs %{lastbuild: nil, name: nil}
+
+    test "list_testmixes/0 returns all testmixes" do
+      test_mix = test_mix_fixture()
+      assert GitTools.list_testmixes() == [test_mix]
+    end
+
+    test "get_test_mix!/1 returns the test_mix with given id" do
+      test_mix = test_mix_fixture()
+      assert GitTools.get_test_mix!(test_mix.id) == test_mix
+    end
+
+    test "create_test_mix/1 with valid data creates a test_mix" do
+      valid_attrs = %{lastbuild: ~D[2021-10-14], name: "some name"}
+
+      assert {:ok, %TestMix{} = test_mix} = GitTools.create_test_mix(valid_attrs)
+      assert test_mix.lastbuild == ~D[2021-10-14]
+      assert test_mix.name == "some name"
+    end
+
+    test "create_test_mix/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = GitTools.create_test_mix(@invalid_attrs)
+    end
+
+    test "update_test_mix/2 with valid data updates the test_mix" do
+      test_mix = test_mix_fixture()
+      update_attrs = %{lastbuild: ~D[2021-10-15], name: "some updated name"}
+
+      assert {:ok, %TestMix{} = test_mix} = GitTools.update_test_mix(test_mix, update_attrs)
+      assert test_mix.lastbuild == ~D[2021-10-15]
+      assert test_mix.name == "some updated name"
+    end
+
+    test "update_test_mix/2 with invalid data returns error changeset" do
+      test_mix = test_mix_fixture()
+      assert {:error, %Ecto.Changeset{}} = GitTools.update_test_mix(test_mix, @invalid_attrs)
+      assert test_mix == GitTools.get_test_mix!(test_mix.id)
+    end
+
+    test "delete_test_mix/1 deletes the test_mix" do
+      test_mix = test_mix_fixture()
+      assert {:ok, %TestMix{}} = GitTools.delete_test_mix(test_mix)
+      assert_raise Ecto.NoResultsError, fn -> GitTools.get_test_mix!(test_mix.id) end
+    end
+
+    test "change_test_mix/1 returns a test_mix changeset" do
+      test_mix = test_mix_fixture()
+      assert %Ecto.Changeset{} = GitTools.change_test_mix(test_mix)
+    end
+  end
 end

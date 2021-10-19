@@ -101,4 +101,100 @@ defmodule Tpanel.GitTools do
   def change_branch(%Branch{} = branch, attrs \\ %{}) do
     Branch.changeset(branch, attrs)
   end
+
+  alias Tpanel.GitTools.TestMix
+
+  @doc """
+  Returns the list of testmixes.
+
+  ## Examples
+
+      iex> list_testmixes()
+      [%TestMix{}, ...]
+
+  """
+  def list_testmixes do
+    Repo.all(TestMix)
+  end
+
+  @doc """
+  Gets a single test_mix.
+
+  Raises `Ecto.NoResultsError` if the Test mix does not exist.
+
+  ## Examples
+
+      iex> get_test_mix!(123)
+      %TestMix{}
+
+      iex> get_test_mix!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_test_mix!(id), do: Repo.get!(TestMix, id)
+
+  @doc """
+  Creates a test_mix.
+
+  ## Examples
+
+      iex> create_test_mix(%{field: value})
+      {:ok, %TestMix{}}
+
+      iex> create_test_mix(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_test_mix(attrs \\ %{}) do
+    %TestMix{}
+    |> TestMix.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a test_mix.
+
+  ## Examples
+
+      iex> update_test_mix(test_mix, %{field: new_value})
+      {:ok, %TestMix{}}
+
+      iex> update_test_mix(test_mix, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_test_mix(%TestMix{} = test_mix, attrs) do
+    test_mix
+    |> TestMix.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a test_mix.
+
+  ## Examples
+
+      iex> delete_test_mix(test_mix)
+      {:ok, %TestMix{}}
+
+      iex> delete_test_mix(test_mix)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_test_mix(%TestMix{} = test_mix) do
+    Repo.delete(test_mix)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking test_mix changes.
+
+  ## Examples
+
+      iex> change_test_mix(test_mix)
+      %Ecto.Changeset{data: %TestMix{}}
+
+  """
+  def change_test_mix(%TestMix{} = test_mix, attrs \\ %{}) do
+    TestMix.changeset(test_mix, attrs)
+  end
 end

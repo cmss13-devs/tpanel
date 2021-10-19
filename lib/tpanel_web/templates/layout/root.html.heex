@@ -18,10 +18,12 @@
         <a class="text-3xl font-bold font-heading">
           TPanel
         </a>
-        <ul class="hidden md:flex px-4 text-xl mx-auto font-semibold font-heading space-x-8">
+        <ul class="hidden md:flex px-8 text-xl mx-auto font-semibold font-heading space-x-6">
           <li><a class="hover:text-gray-200">Home</a></li>
+          <li><%= link "Mixes", to: Routes.test_mix_path(@conn, :index), class: "hover:text-gray-200" %></li>
+          <li><%= link "Branches", to: Routes.branch_path(@conn, :index), class: "hover:text-gray-200" %></li>
           <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "Live Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: "hover:text-gray-200" %></li>
+              <li><%= link "Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: "hover:text-gray-200" %></li>
           <% end %>
         </ul>
       </div>

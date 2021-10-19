@@ -19,6 +19,7 @@ defmodule TpanelWeb.Router do
 
     get "/", PageController, :index
     resources "/branches", BranchController, except: [:new, :edit]
+    resources "/mixes", TestMixController
   end
 
   # Other scopes may use custom stacks.

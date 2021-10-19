@@ -1,0 +1,28 @@
+<h1>Listing Testmixes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Lastbuild</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for test_mix <- @testmixes do %>
+    <tr>
+      <td><%= test_mix.name %></td>
+      <td><%= test_mix.lastbuild %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.test_mix_path(@conn, :show, test_mix) %></span>
+        <span><%= link "Edit", to: Routes.test_mix_path(@conn, :edit, test_mix) %></span>
+        <span><%= link "Delete", to: Routes.test_mix_path(@conn, :delete, test_mix), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Test mix", to: Routes.test_mix_path(@conn, :new) %></span>

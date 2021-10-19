@@ -1,0 +1,18 @@
+<h1>Show Test mix</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @test_mix.name %>
+  </li>
+
+  <li>
+    <strong>Lastbuild:</strong>
+    <%= @test_mix.lastbuild %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.test_mix_path(@conn, :edit, @test_mix) %></span> |
+<span><%= link "Back", to: Routes.test_mix_path(@conn, :index) %></span>

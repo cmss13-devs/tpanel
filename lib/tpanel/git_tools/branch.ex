@@ -8,6 +8,7 @@ defmodule Tpanel.GitTools.Branch do
     field :refspec, :string
     field :remote, :string
     field :revision, :string
+    belongs_to :mix, Tpanel.GitTools.TextMix
 
     timestamps()
   end
@@ -16,6 +17,7 @@ defmodule Tpanel.GitTools.Branch do
   def changeset(branch, attrs) do
     branch
     |> cast(attrs, [:name, :description, :remote, :refspec, :revision])
-    |> validate_required([:name, :description, :remote, :refspec, :revision])
+    |> validate_required([:name, :remote, :refspec])
+    |> unique_constraint(:name)
   end
 end
