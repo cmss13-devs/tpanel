@@ -20,7 +20,7 @@ defmodule TpanelWeb.BranchLiveView do
     socket.assigns.test_mix
     |> Tpanel.GitTools.create_mix_branch(branch_changeset)
     |> case do
-      {:ok, branch} ->
+      {:ok, _branch} ->
         TpanelWeb.Endpoint.broadcast(socket.assigns.topic, "created", %{})
         {:noreply, 
         socket 
