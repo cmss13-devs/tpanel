@@ -11,18 +11,26 @@
 
 <div class="pt-6">
   <.form let={f} for={@newchangeset} phx-submit="create_branch">
-    <span class="pr-4">
-      <%= submit "New", class: "text-white p-1 px-2 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block" %>
-    </span>
-    <%= text_input f, :name, width: 24, placeholder: "name", class: "inline-block" %>
-    <%= text_input f, :remote, width: 100, placeholder: "remote URL", class: "inline-block" %>
-    <%= text_input f, :refspec, width: 24, placeholder: "branch", class: "inline-block" %>
-    <%= text_input f, :revision, width: 20, placeholder: "revision (optional)", class: "inline-block" %>
-    <div class="text-red-500 font-bold">
-      <%= error_tag f, :name %>
-      <%= error_tag f, :remote %>
-      <%= error_tag f, :refspec %>
-      <%= error_tag f, :revision %>
+    <div>
+      <span class="pr-4">
+        <%= submit "New", class: "text-white p-1 px-2 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block" %>
+      </span>
+      <div class="inline-block">
+        <%= error_tag f, :name %>
+        <%= text_input f, :name, placeholder: "name" %>
+      </div>
+      <div class="inline-block">
+        <%= error_tag f, :remote %>
+        <%= text_input f, :remote, placeholder: "remote URL" %>
+      </div>
+      <div class="inline-block">
+        <%= error_tag f, :refspec %>
+        <%= text_input f, :refspec, placeholder: "branch" %>
+      </div>
+      <div class="inline-block">
+        <%= error_tag f, :revision %>
+        <%= text_input f, :revision, placeholder: "revision (optional)" %>
+      </div>
     </div>
   </.form>
 </div>

@@ -3,22 +3,11 @@
 <h1 class="text-3xl pl-5 font-heading inline-block">Listing TestMixes</h1>
 </div>
 
-<table class="table-auto w-screen">
-  <thead>
-    <tr>
-      <th>Actions</th>
-      <th>Name</th>
-    </tr>
-  </thead>
-  <tbody>
-<%= for test_mix <- @testmixes do %>
-    <tr>
-      <td>
-        <%= link "Show", to: Routes.test_mix_path(@conn, :show, test_mix) %>
-      </td>
-      <td><%= test_mix.name %></td>
-    </tr>
-<% end %>
-  </tbody>
-</table>
-
+<div class="p-2 py-5">
+  <%= for test_mix <- @testmixes do %>
+  <div>
+    <%= link "Show", to: Routes.test_mix_path(@conn, :show, test_mix), class: "text-white p-1 px-2 bg-blue-700 hover:bg-blue-800 font-bold rounded" %>
+    <p class="pl-5 inline-block font-bolded"><%= test_mix.name %></p>
+  </div>
+  <% end %>
+</div>
