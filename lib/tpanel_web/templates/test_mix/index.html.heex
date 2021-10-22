@@ -5,7 +5,7 @@
 
 <div class="p-2 py-5">
   <%= for test_mix <- @testmixes do %>
-  <div>
+  <div class="py-1">
     <%= link "Show", to: Routes.test_mix_path(@conn, :show, test_mix), class: "text-white p-1 px-2 bg-blue-700 hover:bg-blue-800 font-bold rounded" %>
     <p class="pl-5 inline-block font-bolded"><%= test_mix.name %></p>
   </div>

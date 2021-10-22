@@ -2,9 +2,14 @@
 
 <div>
 <%= for branch <- @test_mix.branches do %>
-  <div>
+  <div class="py-1">
     <button phx-click="delete_branch" {%{"phx-value-branch": branch.id}} class="text-white p-1 px-2 bg-red-600 hover:bg-red-900 font-bold rounded inline-block">Delete</button>
-    <p class="inline-block"><%= branch.name %>: <%= branch.refspec %> @ <%= branch.remote %></p>
+    <%= if @test_mix.base_branch_id == branch.id do %>
+      <button class="text-gray-200 bg-gray-600 font-bold rounded inline-block p-1 px-3">Base</button>
+    <% else %>
+      <button phx-click="default_branch" {%{"phx-value-branch": branch.id}} class="text-white p-1 px-3 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block">Base</button>
+    <% end %>
+    <p class="pl-3 inline-block"><%= branch.name %>: <%= branch.refspec %> @ <%= branch.remote %></p>
   </div>
 <% end %>
 </div>
@@ -16,7 +21,11 @@
         <%= submit "New", class: "text-white p-1 px-2 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block" %>
       </span>
       <div class="inline-block">
-        <%= error_tag f, :name %>
+        <%= if Enum.any?(@changeset.errors, fn ({k,_v}) -> k == :mix_branch_unicity end) do %>
+          <p class="text-red-600 font-bold">already exists</p>
+        <% else %>
+          <%= error_tag f, :name %>
+        <% end %>
         <%= text_input f, :name, placeholder: "name" %>
       </div>
       <div class="inline-block">

@@ -15,5 +15,7 @@ defmodule Tpanel.GitTools.Branch do
     branch
     |> cast(attrs, [:name, :remote, :refspec, :revision])
     |> validate_required([:name, :remote, :refspec])
+    |> assoc_constraint(:test_mix)
+    |> unique_constraint(:mix_branch_unicity, name: :test_mix_unique_branch_name)
   end
 end
