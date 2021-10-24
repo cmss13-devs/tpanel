@@ -209,8 +209,8 @@ defmodule Tpanel.GitTools do
   @doc """
   Create a branch for a TestMix
   """ 
-  def create_mix_branch(%TestMix{} = testmix, attrs) do
-    Ecto.build_assoc(testmix, :branches)
+  def create_mix_branch(%TestMix{} = test_mix, attrs) do
+    Ecto.build_assoc(test_mix, :branches)
     |> Branch.changeset(attrs)
     |> Repo.insert()
   end

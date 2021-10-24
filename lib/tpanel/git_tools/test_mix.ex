@@ -4,7 +4,8 @@ defmodule Tpanel.GitTools.TestMix do
 
   schema "testmixes" do
     field :name, :string
-    field :lastbuild, :date
+    field :last_build, :date
+    field :last_fetch, :date
     field :base_branch_id, :id
     has_many :branches, Tpanel.GitTools.Branch
     timestamps()
@@ -13,8 +14,9 @@ defmodule Tpanel.GitTools.TestMix do
   @doc false
   def changeset(test_mix, attrs) do
     test_mix
-    |> cast(attrs, [:name, :lastbuild, :base_branch_id])
+    |> cast(attrs, [:name, :last_fetch, :last_build, :base_branch_id])
     |> validate_required([:name])
+    |> validate_format(:name, ~r/^[0-9a-zA-Z\-_]+/)
     |> foreign_key_constraint(:base_branch_id)
     |> unique_constraint(:name)
   end

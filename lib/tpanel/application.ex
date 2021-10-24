@@ -15,9 +15,10 @@ defmodule Tpanel.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Tpanel.PubSub},
       # Start the Endpoint (http/https)
-      TpanelWeb.Endpoint
+      TpanelWeb.Endpoint,
       # Start a worker by calling: Tpanel.Worker.start_link(arg)
       # {Tpanel.Worker, arg}
+      {Registry, keys: :unique, name: ExecutorRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
