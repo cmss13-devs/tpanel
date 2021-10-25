@@ -1,4 +1,4 @@
-defmodule Tpanel.GitExecutor do
+defmodule Tpanel.MixServer do
   use GenServer, restart: :transient
 
   @moduledoc """
@@ -40,8 +40,12 @@ defmodule Tpanel.GitExecutor do
   end
 
   @impl true
-  def handle_cast(:reload, %State{} = state) do
-    {:noreply, reload_mix(state)}
+  def handle_cast(:fetch, %State{} = state) do
+    {:noreply, 
+    state
+    |> reload_mix()
+    |> fetch_remotes()
+    }
   end
 
   @impl true
@@ -57,7 +61,6 @@ defmodule Tpanel.GitExecutor do
   def reload_mix(%State{} = state) do
     state
     |> struct(%{test_mix: Tpanel.GitTools.get_full_test_mix!(state.test_mix_id)})
-    |> update_remotes()
   end
  
   @doc """
@@ -68,17 +71,24 @@ defmodule Tpanel.GitExecutor do
       File.mkdir!(state.workdir)
       System.cmd("git", ["init"], cd: state.workdir)
     end
-    update_remotes(state)
+    fetch_remotes(state)
   end
 
   @doc """
   Update contents of the TestMix git repo, tracking remotes 
   set in the database model and fetching remote branches
   """
-  def update_remotes(%State{} = state) do
+  def fetch_remotes(%State{} = state) do
     Enum.each(state.test_mix.branches, fn branch ->
-      System.cmd("git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], cd: state.workdir)
-      rev = System.cmd("git", ["rev-parse", branch.name], cd: state.workdir)
+      {_output, exitcode} = System.cmd("git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], cd: state.workdir)
+      if exitcode != 0 do
+        raise "Failed to fetch branch #{branch.name}"
+      end
+      {rev, exitcode} = System.cmd("git", ["rev-parse", branch.name], cd: state.workdir)
+      if exitcode != 0 do
+        raise "Failed to get fetched branch revision"
+      end
+      rev = String.replace(rev, "\n", "")
       if not String.match?(rev, ~r/^[[:alnum:]]{40}$/) do
         raise "Did not find a valid revision for branch #{branch.name}"
       end
