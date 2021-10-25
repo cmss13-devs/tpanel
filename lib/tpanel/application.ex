@@ -18,7 +18,8 @@ defmodule Tpanel.Application do
       TpanelWeb.Endpoint,
       # Start a worker by calling: Tpanel.Worker.start_link(arg)
       # {Tpanel.Worker, arg}
-      {Registry, keys: :unique, name: ExecutorRegistry}
+      {DynamicSupervisor, strategy: :one_for_one, name: Tpanel.MixSupervisor},
+      {Registry, keys: :unique, name: Tpanel.MixRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

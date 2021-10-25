@@ -17,7 +17,7 @@ defmodule Tpanel.MixServer do
   end
 
   defp process_name(%State{} = state) do
-    {:via, Registry, {ExecutorRegistry, "mixserver_#{state.test_mix_id}"}}
+    {:via, Registry, {Tpanel.MixRegistry, "mixserver_#{state.test_mix_id}"}}
   end
 
   @impl true

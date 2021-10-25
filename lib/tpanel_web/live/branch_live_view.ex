@@ -7,12 +7,7 @@ defmodule TpanelWeb.BranchLiveView do
   end
 
   def scan_mixserver(socket) do
-    lookup = Registry.lookup(ExecutorRegistry, "mixserver_#{socket.assigns.mix.id}") 
-    IO.inspect lookup
-    case lookup do
-      [{pid, _val}] -> assign(socket, mixserver: pid)
-      _ -> assign(socket, mixserver: [])
-    end
+    assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix.id))
   end
 
   def reload_mix(socket) do
@@ -36,9 +31,7 @@ defmodule TpanelWeb.BranchLiveView do
   end
 
   def handle_event("start_mixserver", _stuff, socket) do
-    state = %Tpanel.MixServer.State{test_mix_id: socket.assigns.mix.id}
-    {:ok, pid} = Tpanel.MixServer.start_link(state)
-    {:noreply, assign(socket, mixserver: pid)}
+    scan_mixserver(socket)
   end
 
   def handle_event("update_mixserver", _stuff, socket) do
@@ -76,6 +69,7 @@ defmodule TpanelWeb.BranchLiveView do
         socket
         |> pub_event("updated")
         |> reset_changeset()
+        |> reload_mix()
         }
       {:error, %Ecto.Changeset{} = changeset} ->
         put_flash(socket, :error, "Couldn't create branch entry")

@@ -1,19 +1,11 @@
-
-<div>
-  <p class="inline-block text-xl font-bold text-white p-1">MixServer: </p>
-<%= if @mixserver == [] do %>
-  <button phx-click="start_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Start</button>
-<% else %>
-  <button phx-click="update_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Fetch</button>
-<% end %>
-</div>
-
-<div class="py-5">
+<div class="py-4">
   <table class="text-white border-separate" style="border-spacing: 0.7rem">
     <thead><tr>
       <th scope="col">Actions</th>
       <th scope="col">Fetched</th>
-      <th scope="col">Branch info</th>
+      <th scope="col">Target</th>
+      <th scope="col">Name</th>
+      <th scope="col">Branch @ Remote</th>
     </tr></thead>
     <tbody>
 <%= for branch <- @mix.branches do %>
@@ -21,9 +13,9 @@
     <td>
     <button phx-click="delete_branch" {%{"phx-value-branch": branch.id}} class="text-white p-1 px-2 bg-red-600 hover:bg-red-900 font-bold rounded inline-block">Delete</button>
     <%= if @mix.base_branch_id == branch.id do %>
-      <button class="text-gray-200 bg-gray-600 font-bold rounded inline-block p-1 px-3">Base</button>
+      <button class="w-28 text-gray-300 bg-green-700 font-bold rounded inline-block p-1 px-3">Base</button>
     <% else %>
-      <button phx-click="default_branch" {%{"phx-value-branch": branch.id}} class="text-white p-1 px-3 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block">Base</button>
+      <button phx-click="default_branch" {%{"phx-value-branch": branch.id}} class="w-28 text-white p-1 px-3 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block">Set Base</button>
     <% end %>
     </td>
     <td>
@@ -31,11 +23,14 @@
            String.slice(branch.fetched_revision, 0..11)
          end %>
     </td>
+    <td>
+      <%= if not is_nil(branch.target_revision) do
+           String.slice(branch.target_revision, 0..11)
+         end %>
+    </td>
+    <td><%= branch.name %></td>
     <td class="pl-3">
-      <%= branch.name %>: <%= branch.refspec %>
-      <%= if not is_nil(branch.target_revision) do %>
-     [<%= branch.target_revision %>]
-     <% end %>
+     <span class="font-bold"><%= branch.refspec %></span>
      @ <%= branch.remote %>
     </td>
   </tr>
@@ -44,7 +39,7 @@
   </table>
 </div>
 
-<div class="pt-6">
+<div class="pt-4">
   <.form let={f} for={@changeset} phx-submit="create_branch">
     <div>
       <span class="pr-4">
@@ -72,4 +67,12 @@
       </div>
     </div>
   </.form>
+</div>
+
+<div class="py-8">
+<%= if @mixserver == [] do %>
+  <button phx-click="start_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Start</button>
+<% else %>
+  <button phx-click="update_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Fetch</button>
+<% end %>
 </div>
