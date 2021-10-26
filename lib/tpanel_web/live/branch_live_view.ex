@@ -8,9 +8,20 @@ defmodule TpanelWeb.BranchLiveView do
 
   def reload_mix(socket) do
     mix = Tpanel.GitTools.get_full_test_mix!(socket.assigns.mix_id)
-    assign(socket, mix: mix, 
-      refresh_at: Timex.format!(Timex.now("Etc/UTC"), "%H:%M:%S", :strftime),
-      fetched_ago: Timex.from_now(mix.last_fetch))
+    refresh_at = Timex.format!(Timex.now("Etc/UTC"), "%H:%M:%S", :strftime)
+    assign(socket, mix: mix,
+      refresh_at: refresh_at, 
+      fetched_ago: from_now(mix.last_fetch),
+      built_ago: from_now(mix.last_build))
+  end
+
+
+  def from_now(nil), do: "Never"
+  def from_now(val) do
+      Timex.from_now(val) |> case do
+      {:error, _msg} -> "Unknown"
+      x -> x
+    end
   end
 
   def reset_changeset(socket) do
