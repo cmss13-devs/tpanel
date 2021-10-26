@@ -1,0 +1,7 @@
+<div id="mixout" class="h-80 overflow-y-auto flex flex-col" phx-update="append">
+  <%= for message <- @messages do %>
+    <%= if not message.hidden do %>
+      <div id={message.mid} class={message.styles}><%= message.text %></div>
+    <% end %>
+  <% end %>
+</div>

@@ -9,6 +9,10 @@ defmodule TpanelWeb.BranchLiveView do
   def scan_mixserver(socket) do
     assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix.id))
   end
+  
+  def get_mixserver(socket) do
+    assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix.id, start: true))
+  end
 
   def reload_mix(socket) do
     mix = Tpanel.GitTools.get_full_test_mix!(socket.assigns.mix_id)
@@ -31,11 +35,11 @@ defmodule TpanelWeb.BranchLiveView do
   end
 
   def handle_event("start_mixserver", _stuff, socket) do
-    scan_mixserver(socket)
+    {:noreply, assign(socket, mixserver: get_mixserver(socket))}
   end
 
   def handle_event("update_mixserver", _stuff, socket) do
-    socket = scan_mixserver(socket)
+    socket = get_mixserver(socket)
     GenServer.cast(socket.assigns.mixserver, :fetch)
     {:noreply, socket}
   end

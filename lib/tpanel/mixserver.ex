@@ -20,23 +20,51 @@ defmodule Tpanel.MixServer do
     {:via, Registry, {Tpanel.MixRegistry, "mixserver_#{state.test_mix_id}"}}
   end
 
-  def broadcast(state, msg, %{} = contents) do
+  def send_event(state, msg, %{} = contents) do
     TpanelWeb.Endpoint.broadcast(state.output_topic, msg, contents)
   end
 
-  def run_sync(%State{} = state, mission, arguments, opts \\ []) do
-    directory = Keyword.get(opts, :cd, ".")
-    timeout = Keyword.get(opts, :timeout, 10000)
-    realdir = "#{state.workdir}/#{directory}/"
+  def send_info(state, msg) do
+    TpanelWeb.Endpoint.broadcast(state.output_topic, "info", %{msg: msg})
+  end
 
-    broadcast(state, "exec", %{directory: directory, command: [mission | arguments]})
+  def send_error(state, msg) do
+    TpanelWeb.Endpoint.broadcast(state.output_topic, "error", %{msg: msg})
+  end
+  
+  def push_output(topic, stream, msg) do
+    TpanelWeb.Endpoint.broadcast(topic, "output", %{stream: stream, msg: msg})
+  end 
+
+  def run_sync(%State{} = state, mission, arguments, opts \\ []) do
+    {directory, opts} = Keyword.get_and_update(opts, :cd, fn
+      directory -> {directory, "#{state.workdir}/#{directory}/"}
+    end)
+    send_event(state, "exec", %{directory: directory, command: [mission | arguments]})
+    try do
+      rambo_sync(state, mission, arguments, opts)
+    rescue
+      e -> 
+        send_event(state, "fatal", %{msg: Exception.format(:error, e, __STACKTRACE__)})
+        reraise e, __STACKTRACE__
+    end
+  end
+
+  def rambo_sync(state, mission, arguments, opts) do
+    timeout = Keyword.get(opts, :timeout, 10000)
+    logger = fn
+       {:stdout, output} -> push_output(state.output_topic, "stdout", output)
+       {:stderr, output} -> push_output(state.output_topic, "stderr", output)
+    end
+    {_, opts} = Keyword.get_and_update(opts, :log, fn 
+      true -> {true, logger}
+      nil -> {nil, logger}
+      val -> {val, false}
+    end)
     task = Task.async(fn ->
-      Rambo.run(mission, arguments, cd: realdir, timeout: timeout, log: fn
-        {stream, output} -> broadcast(state, "output", %{stream: stream, output: output})
-      end)
+      Rambo.run(mission, arguments, opts)
     end)
     {:ok, %Rambo{} = ret} = Task.await(task, timeout)
-    broadcast(state, "exec_end", %{})
     ret
   end
 
@@ -102,14 +130,19 @@ defmodule Tpanel.MixServer do
   def fetch_remotes(%State{} = state) do
     Enum.each(state.test_mix.branches, fn branch ->
       %Rambo{status: 0} = run_sync(state, "git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], timeout: 120000)
-      %Rambo{status: 0, out: rev} = run_sync(state, "git", ["rev-parse", branch.name])
+      %Rambo{status: 0, out: rev} = run_sync(state, "git", ["rev-parse", branch.name], log: false)
       rev = String.replace(rev, "\n", "")
       if not String.match?(rev, ~r/^[[:alnum:]]{40}$/) do
-        raise "Did not find a valid revision for branch #{branch.name}"
+        msg = "Did not find a valid revision for branch #{branch.name}"
+        send_error(state, msg)
+        raise msg
       end
       Tpanel.GitTools.update_branch(branch, %{fetched_revision: rev})
+      send_info(state, "Branch #{branch.name} fetched at #{rev}")
     end)
-    Tpanel.GitTools.update_test_mix(state.test_mix, %{last_fetch: DateTime.now!("Etc/UTC")})
+    fetch_time = DateTime.now!("Etc/UTC")
+    Tpanel.GitTools.update_test_mix(state.test_mix, %{last_fetch: fetch_time})
+    send_info(state, "Done fetching remotes at #{fetch_time}")
     TpanelWeb.Endpoint.broadcast(state.update_topic, "reloaded", %{})
     state
   end
