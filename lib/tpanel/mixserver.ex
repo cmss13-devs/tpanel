@@ -20,21 +20,42 @@ defmodule Tpanel.MixServer do
     {:via, Registry, {Tpanel.MixRegistry, "mixserver_#{state.test_mix_id}"}}
   end
 
+  def broadcast(state, msg, %{} = contents) do
+    TpanelWeb.Endpoint.broadcast(state.output_topic, msg, contents)
+  end
+
+  def run_sync(%State{} = state, mission, arguments, opts \\ []) do
+    directory = Keyword.get(opts, :cd, ".")
+    timeout = Keyword.get(opts, :timeout, 10000)
+    realdir = "#{state.workdir}/#{directory}/"
+
+    broadcast(state, "exec", %{directory: directory, command: [mission | arguments]})
+    task = Task.async(fn ->
+      Rambo.run(mission, arguments, cd: realdir, timeout: timeout, log: fn
+        {stream, output} -> broadcast(state, "output", %{stream: stream, output: output})
+      end)
+    end)
+    {:ok, %Rambo{} = ret} = Task.await(task, timeout)
+    broadcast(state, "exec_end", %{})
+    ret
+  end
+
   @impl true
   def init(%State{} = state) do
+    test_mix = Tpanel.GitTools.get_full_test_mix!(state.test_mix_id)
     state = state 
     |> struct(%{
-      test_mix: Tpanel.GitTools.get_full_test_mix!(state.test_mix_id),
-      output_topic: "mixserver_#{state.test_mix_id}",
-      update_topic: "mix_#{state.test_mix_id}",
-      workdir: "workdir/#{state.test_mix.name}"
+      test_mix: test_mix,
+      output_topic: "mixserver_#{test_mix.id}",
+      update_topic: "mix_#{test_mix.id}",
+      workdir: "./workdir/#{test_mix.name}"
     })
     {:ok, state, {:continue, :deferred_init}}
   end
 
   @impl true
   def handle_continue(:deferred_init, %State{} = state) do
-    init_workdir(state)
+    init_workdir(state) 
     TpanelWeb.Endpoint.subscribe(state.update_topic)
     {:noreply, state}
   end
@@ -69,7 +90,7 @@ defmodule Tpanel.MixServer do
   def init_workdir(%State{} = state) do
     if not File.exists?(state.workdir) do
       File.mkdir!(state.workdir)
-      System.cmd("git", ["init"], cd: state.workdir)
+      run_sync(state, "git", ["init"])
     end
     fetch_remotes(state)
   end
@@ -80,14 +101,8 @@ defmodule Tpanel.MixServer do
   """
   def fetch_remotes(%State{} = state) do
     Enum.each(state.test_mix.branches, fn branch ->
-      {_output, exitcode} = System.cmd("git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], cd: state.workdir)
-      if exitcode != 0 do
-        raise "Failed to fetch branch #{branch.name}"
-      end
-      {rev, exitcode} = System.cmd("git", ["rev-parse", branch.name], cd: state.workdir)
-      if exitcode != 0 do
-        raise "Failed to get fetched branch revision"
-      end
+      %Rambo{status: 0} = run_sync(state, "git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], timeout: 120000)
+      %Rambo{status: 0, out: rev} = run_sync(state, "git", ["rev-parse", branch.name])
       rev = String.replace(rev, "\n", "")
       if not String.match?(rev, ~r/^[[:alnum:]]{40}$/) do
         raise "Did not find a valid revision for branch #{branch.name}"

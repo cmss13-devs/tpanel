@@ -25,13 +25,13 @@
      @ <%= branch.remote %>
     </td>
     <td>
-      <%= if not is_nil(branch.fetched_revision) do
-           String.slice(branch.fetched_revision, 0..11)
+      <%= if not is_nil(branch.target_revision) do
+           String.slice(branch.target_revision, 0..11)
          end %>
     </td>
     <td>
-      <%= if not is_nil(branch.target_revision) do
-           String.slice(branch.target_revision, 0..11)
+      <%= if not is_nil(branch.fetched_revision) do
+           String.slice(branch.fetched_revision, 0..11)
          end %>
     </td>
   </tr>
