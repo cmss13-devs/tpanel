@@ -5,8 +5,8 @@ defmodule Tpanel.Repo.Migrations.Base do
 
     create table(:testmixes) do
       add :name, :string
-      add :last_build, :date
-      add :last_fetch, :date
+      add :last_build, :utc_datetime
+      add :last_fetch, :utc_datetime
       timestamps()
     end
 

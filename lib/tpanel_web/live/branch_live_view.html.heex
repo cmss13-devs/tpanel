@@ -79,4 +79,5 @@
 <% else %>
   <button phx-click="update_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Fetch</button>
 <% end %>
+<span class="pl-4 font-bold text-white">Last fetched: <%= @mix.last_fetch %></span>
 </div>

@@ -4,8 +4,8 @@ defmodule Tpanel.GitTools.TestMix do
 
   schema "testmixes" do
     field :name, :string
-    field :last_build, :date
-    field :last_fetch, :date
+    field :last_build, :utc_datetime
+    field :last_fetch, :utc_datetime
     has_many :branches, Tpanel.GitTools.Branch
     timestamps()
   end
