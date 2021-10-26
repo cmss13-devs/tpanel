@@ -47,17 +47,14 @@ defmodule TpanelWeb.BranchLiveView do
     {:noreply, reload_mix(socket)}
   end
 
-  def handle_event("default_branch", %{"branch" => branch_id}, socket) do
-    socket.assigns.mix
-    |> Tpanel.GitTools.update_test_mix(%{base_branch_id: branch_id})
-    |> case do
-      {:ok, mix} ->
-        pub_event(socket, "updated")
-        {:noreply, assign(socket, mix: mix)}
-      {:error, _thing} ->
-        put_flash(socket, :error, "Couldn't set default branch")
-        {:noreply, socket}
-    end
+  def handle_event("order_branch", %{"_target" => [target]} = payload, socket) do
+    branch_id = Enum.at(String.split(target, "-"), 1)
+    {:ok, _branch} = Tpanel.GitTools.get_branch!(branch_id)
+    |> Tpanel.GitTools.update_branch(%{priority: payload[target]})
+    {:noreply, socket
+    |> pub_event("updated")
+    |> reload_mix()
+    }
   end
 
   def handle_event("create_branch", %{"branch" => branch_changeset}, socket) do

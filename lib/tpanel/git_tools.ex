@@ -138,7 +138,7 @@ defmodule Tpanel.GitTools do
   """
   def get_full_test_mix!(id) do
     get_test_mix!(id) 
-    |> Repo.preload(:branches)
+    |> Repo.preload([branches: from(branch in Tpanel.GitTools.Branch, order_by: [desc: :priority])])
   end
 
   @doc """

@@ -2,21 +2,27 @@
   <table class="text-white border-separate" style="border-spacing: 0.7rem">
     <thead><tr>
       <th scope="col">Actions</th>
-      <th scope="col">Fetched</th>
-      <th scope="col">Target</th>
+      <th scope="col">Prio</th>
       <th scope="col">Name</th>
       <th scope="col">Branch @ Remote</th>
+      <th scope="col">Target</th>
+      <th scope="col">Fetched</th>
     </tr></thead>
     <tbody>
 <%= for branch <- @mix.branches do %>
   <tr>
     <td>
     <button phx-click="delete_branch" {%{"phx-value-branch": branch.id}} class="text-white p-1 px-2 bg-red-600 hover:bg-red-900 font-bold rounded inline-block">Delete</button>
-    <%= if @mix.base_branch_id == branch.id do %>
-      <button class="w-28 text-gray-300 bg-green-700 font-bold rounded inline-block p-1 px-3">Base</button>
-    <% else %>
-      <button phx-click="default_branch" {%{"phx-value-branch": branch.id}} class="w-28 text-white p-1 px-3 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block">Set Base</button>
-    <% end %>
+    </td>
+    <td>
+      <form phx-change="order_branch">
+        <input type="text" class="rounded text-black text-right" phx-debounce="blur" {%{value: branch.priority}} {%{name: "priority-#{branch.id}"}} size="2">
+      </form>
+    </td>
+    <td><%= branch.name %></td>
+    <td class="pl-3">
+     <span class="font-bold"><%= branch.refspec %></span>
+     @ <%= branch.remote %>
     </td>
     <td>
       <%= if not is_nil(branch.fetched_revision) do
@@ -27,11 +33,6 @@
       <%= if not is_nil(branch.target_revision) do
            String.slice(branch.target_revision, 0..11)
          end %>
-    </td>
-    <td><%= branch.name %></td>
-    <td class="pl-3">
-     <span class="font-bold"><%= branch.refspec %></span>
-     @ <%= branch.remote %>
     </td>
   </tr>
 <% end %>
@@ -45,6 +46,9 @@
       <span class="pr-4">
         <%= submit "New", class: "text-white p-1 px-2 bg-blue-600 hover:bg-blue-800 font-bold rounded inline-block" %>
       </span>
+      <div class="inline-block pr-2">
+        <%= text_input f, :priority, placeholder: "prio", size: 2, class: "rounded text-right" %>
+      </div>
       <div class="inline-block">
         <%= if Enum.any?(@changeset.errors, fn ({k,_v}) -> k == :mix_branch_unicity end) do %>
           <p class="text-red-600 font-bold">already exists</p>

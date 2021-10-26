@@ -18,7 +18,6 @@ defmodule TpanelWeb.TestMixController do
     case GitTools.create_test_mix(test_mix_params) do
       {:ok, test_mix} ->
         conn
-        |> put_flash(:info, "TestMix created successfully.")
         |> redirect(to: Routes.test_mix_path(conn, :show, test_mix))
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -38,7 +37,6 @@ defmodule TpanelWeb.TestMixController do
     case GitTools.update_test_mix(test_mix, test_mix_params) do
       {:ok, test_mix} ->
         conn
-        |> put_flash(:info, "TestMix updated successfully.")
         |> redirect(to: Routes.test_mix_path(conn, :show, test_mix))
 
       {:error, %Ecto.Changeset{} = changeset} ->

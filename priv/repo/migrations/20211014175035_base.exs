@@ -14,14 +14,11 @@ defmodule Tpanel.Repo.Migrations.Base do
       add :name, :string
       add :remote, :string
       add :refspec, :string
+      add :priority, :integer
       add :target_revision, :string
       add :fetched_revision, :string
       add :built_revision, :string
       add :test_mix_id, references(:testmixes, on_delete: :delete_all), null: false
-    end
-
-    alter table(:testmixes) do
-      add :base_branch_id, references(:branches, on_delete: :nilify_all)
     end
 
     create unique_index(:testmixes, [:name])

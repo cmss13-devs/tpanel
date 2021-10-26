@@ -9,13 +9,14 @@ defmodule Tpanel.GitTools.Branch do
     field :target_revision, :string
     field :fetched_revision, :string
     field :built_revision, :string
+    field :priority, :integer, default: 1
     belongs_to :test_mix, Tpanel.GitTools.TestMix
   end
 
   @doc false
   def changeset(branch, attrs) do
     branch
-    |> cast(attrs, [:name, :remote, :refspec, :target_revision, :fetched_revision, :built_revision])
+    |> cast(attrs, [:name, :remote, :refspec, :target_revision, :fetched_revision, :built_revision, :priority])
     |> validate_required([:name, :remote, :refspec])
     |> validate_format(:name, ~r/^[0-9a-zA-Z\-_]+/)
     |> validate_format(:remote, ~r/^[0-9a-zA-Z\-_\/:%@]+/)
