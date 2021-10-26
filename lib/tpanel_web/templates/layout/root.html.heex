@@ -18,7 +18,7 @@
           <li><%= link "TPanel", to: Routes.page_path(@conn, :index), class: "pr-2 text-3xl font-bold w-1/4" %></li>
           <li><%= link "Mixes", to: Routes.test_mix_path(@conn, :index), class: "hover:text-gray-200" %></li>
           <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: "hover:text-gray-200" %></li>
+              <li><%= link "Debug", to: Routes.live_dashboard_path(@conn, :home), class: "hover:text-gray-200" %></li>
           <% end %>
         </ul>
     </nav>

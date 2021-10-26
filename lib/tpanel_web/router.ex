@@ -18,7 +18,7 @@ defmodule TpanelWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    resources "/mixes", TestMixController
+    resources "/mixes", TestMixController, only: [:new, :create, :show, :index]
   end
 
   # Other scopes may use custom stacks.
