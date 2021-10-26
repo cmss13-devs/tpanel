@@ -6,17 +6,11 @@ defmodule TpanelWeb.BranchLiveView do
     socket
   end
 
-  def scan_mixserver(socket) do
-    assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix.id))
-  end
-  
-  def get_mixserver(socket) do
-    assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix.id, start: true))
-  end
-
   def reload_mix(socket) do
     mix = Tpanel.GitTools.get_full_test_mix!(socket.assigns.mix_id)
-    assign(socket, mix: mix)
+    assign(socket, mix: mix, 
+      refresh_at: Timex.format!(Timex.now("Etc/UTC"), "%H:%M:%S", :strftime),
+      fetched_ago: Timex.from_now(mix.last_fetch))
   end
 
   def reset_changeset(socket) do
@@ -25,29 +19,22 @@ defmodule TpanelWeb.BranchLiveView do
   end
 
   def mount(_params, %{"test_mix_id" => mix_id}, socket) do
-    TpanelWeb.Endpoint.subscribe("mix_#{mix_id}")
+    if connected?(socket) do
+      TpanelWeb.Endpoint.subscribe("mix_#{mix_id}")
+      Process.send_after(self(), :refresh, 120000)
+    end
+
     {:ok, 
     assign(socket, mix_id: mix_id)
     |> reload_mix()
-    |> scan_mixserver()
     |> reset_changeset() 
     } 
-  end
-
-  def handle_event("start_mixserver", _stuff, socket) do
-    {:noreply, assign(socket, mixserver: get_mixserver(socket))}
-  end
-
-  def handle_event("update_mixserver", _stuff, socket) do
-    socket = get_mixserver(socket)
-    GenServer.cast(socket.assigns.mixserver, :fetch)
-    {:noreply, socket}
   end
 
   def handle_event("delete_branch", %{"branch" => branch_id}, socket) do
     Tpanel.GitTools.get_branch!(branch_id)
     |> Tpanel.GitTools.delete_branch
-    pub_event(socket, "updated")
+    pub_event(socket, "modified")
     {:noreply, reload_mix(socket)}
   end
 
@@ -56,7 +43,7 @@ defmodule TpanelWeb.BranchLiveView do
     {:ok, _branch} = Tpanel.GitTools.get_branch!(branch_id)
     |> Tpanel.GitTools.update_branch(%{priority: payload[target]})
     {:noreply, socket
-    |> pub_event("updated")
+    |> pub_event("modified")
     |> reload_mix()
     }
   end
@@ -68,7 +55,7 @@ defmodule TpanelWeb.BranchLiveView do
       {:ok, _branch} ->
         {:noreply, 
         socket
-        |> pub_event("updated")
+        |> pub_event("modified")
         |> reset_changeset()
         |> reload_mix()
         }
@@ -78,7 +65,7 @@ defmodule TpanelWeb.BranchLiveView do
     end
   end
 
-  def handle_info(%{event: "updated"}, socket) do
+  def handle_info(%{event: "modified"}, socket) do
     {:noreply, 
     socket
     |> reload_mix()
@@ -86,11 +73,12 @@ defmodule TpanelWeb.BranchLiveView do
     }
   end
 
-  def handle_info(%{event: "reloaded"}, socket) do
-    {:noreply,
-    socket
-    |> reload_mix()
-    |> scan_mixserver()
-    }
+  def handle_info(%{event: "updated"}, socket) do
+    {:noreply, reload_mix(socket)}
+  end
+
+  def handle_info(:refresh, socket) do
+    Process.send_after(self(), :refresh, 120000)
+    {:noreply, reload_mix(socket)}
   end 
 end

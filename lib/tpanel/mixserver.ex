@@ -98,13 +98,13 @@ defmodule Tpanel.MixServer do
   end
 
   @impl true
-  def handle_info(%{event: "updated"}, %State{} = state) do
+  def handle_info(%{event: "modified"}, %State{} = state) do
     {:noreply, reload_mix(state)}
   end
 
   @impl true
-  def handle_info(%{event: "reloaded"}, %State{} = state) do
-    {:noreply, state}
+  def handle_info(%{event: "updated"}, %State{} = state) do
+    {:noreply, reload_mix(state)}
   end
 
   def reload_mix(%State{} = state) do
@@ -142,8 +142,9 @@ defmodule Tpanel.MixServer do
     end)
     fetch_time = DateTime.now!("Etc/UTC")
     Tpanel.GitTools.update_test_mix(state.test_mix, %{last_fetch: fetch_time})
+    TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
     send_info(state, "Done fetching remotes at #{fetch_time}")
-    TpanelWeb.Endpoint.broadcast(state.update_topic, "reloaded", %{})
+    send_event(state, "reloaded", %{})
     state
   end
 

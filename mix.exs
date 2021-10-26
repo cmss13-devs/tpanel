@@ -50,7 +50,8 @@ defmodule Tpanel.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:rambo, "~> 0.3.4"}
+      {:rambo, "~> 0.3.4"},
+      {:timex, "~> 3.7"}
     ]
   end
 

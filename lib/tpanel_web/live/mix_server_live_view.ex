@@ -7,17 +7,42 @@ defmodule TpanelWeb.MixServerLiveView do
 
   def mount(_params, %{"test_mix_id" => mix_id}, socket) do
     TpanelWeb.Endpoint.subscribe("mixserver_#{mix_id}")
-    {:ok, assign(socket, mid: 1, messages: [], temporary_assigns: [messages: []])}
+    {:ok, 
+     assign(socket, mix_id: mix_id, msg_id: 1, mixserver: [], messages: [], temporary_assigns: [messages: []])
+     |> scan_mixserver()
+    }
+  end
+
+  def scan_mixserver(socket) do
+    assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix_id))
+  end
+
+  def get_mixserver(socket) do
+    assign(socket, mixserver: Tpanel.MixSupervisor.get_mixserver(socket.assigns.mix_id, start: true))
+  end  
+
+  def handle_event("start_mixserver", _stuff, socket) do
+    {:noreply, assign(socket, mixserver: get_mixserver(socket))}
+  end
+
+  def handle_event("update_mixserver", _stuff, socket) do
+    socket = get_mixserver(socket)
+    GenServer.cast(socket.assigns.mixserver, :fetch)
+    {:noreply, socket}
   end
 
   def handle_info(%{event: event, payload: payload}, socket) do
-    {:noreply, handle_payload(event, payload, socket)}
+    if event == "reloaded" do
+      {:noreply, scan_mixserver(socket)}
+    else
+      {:noreply, handle_payload(event, payload, socket)}
+    end
   end
 
   def handle_payload(event, %{} = payload, socket) do
-    mid = socket.assigns.mid + 1
-    message = %Message{generate_message(event, payload) | mid: "msg-#{mid}"}
-    assign(socket, mid: mid, messages: [message | socket.assigns.messages])
+    msg_id = socket.assigns.msg_id + 1
+    message = %Message{generate_message(event, payload) | mid: "msg-#{msg_id}"}
+    assign(socket, msg_id: msg_id, messages: [message | socket.assigns.messages])
   end
 
   def generate_message("output", %{stream: "stdout"} = payload) do

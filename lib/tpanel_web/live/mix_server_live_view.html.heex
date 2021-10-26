@@ -1,7 +1,15 @@
-<div id="mixout" class="h-80 overflow-y-auto flex flex-col" phx-update="append">
+<div id="mixout" class="p-3 h-80 w-max max-w-full overflow-y-auto flex flex-col-reverse bg-black border-solid border-black border-2 rounded" phx-update="prepend" style="min-width: 50%">
   <%= for message <- @messages do %>
     <%= if not message.hidden do %>
       <div id={message.mid} class={message.styles}><%= message.text %></div>
     <% end %>
   <% end %>
+</div>
+
+<div class="py-3">
+<%= if @mixserver == [] do %>
+  <button phx-click="start_mixserver" class="text-white p-1 px-5 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Start</button>
+<% else %>
+  <button phx-click="update_mixserver" class="text-white p-1 px-4 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Fetch</button>
+<% end %>
 </div>

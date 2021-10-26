@@ -1,4 +1,4 @@
-<div class="py-4">
+<div class="py-3">
   <table class="text-white border-separate" style="border-spacing: 0.7rem">
     <thead><tr>
       <th scope="col">Actions</th>
@@ -40,7 +40,7 @@
   </table>
 </div>
 
-<div class="pt-4">
+<div class="py-2">
   <.form let={f} for={@changeset} phx-submit="create_branch">
     <div>
       <span class="pr-4">
@@ -73,11 +73,7 @@
   </.form>
 </div>
 
-<div class="py-8">
-<%= if @mixserver == [] do %>
-  <button phx-click="start_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Start</button>
-<% else %>
-  <button phx-click="update_mixserver" class="text-white p-1 px-2 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Fetch</button>
-<% end %>
-<span class="pl-4 font-bold text-white">Last fetched: <%= @mix.last_fetch %></span>
+<div class="p-2 pl-4 font-bold text-white">
+  <span class="px-3">Refreshed: <%= "#{@refresh_at}Z" %></span>
+  <span class="px-3">Last fetched: <%= @fetched_ago %></span>
 </div>
