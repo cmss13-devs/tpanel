@@ -7,6 +7,7 @@
       <th scope="col">Branch @ Remote</th>
       <th scope="col">Target</th>
       <th scope="col">Fetched</th>
+      <th scope="col">Built</th>
     </tr></thead>
     <tbody>
 <%= for branch <- @mix.branches do %>
@@ -32,6 +33,11 @@
     <td>
       <%= if not is_nil(branch.fetched_revision) do
            String.slice(branch.fetched_revision, 0..11)
+         end %>
+    </td>
+    <td class={if branch.fetched_revision == branch.built_revision do "text-green-400" else "text-red-600" end}>
+      <%= if not is_nil(branch.built_revision) do
+           String.slice(branch.built_revision, 0..11)
          end %>
     </td>
   </tr>
