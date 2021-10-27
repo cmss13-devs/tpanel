@@ -11,17 +11,14 @@
   border-radius: 4px;
 }
 .alert-info {
-  color: #31708f;
   background-color: #d9edf7;
   border-color: #bce8f1;
 }
 .alert-warning {
-  color: #8a6d3b;
   background-color: #fcf8e3;
   border-color: #faebcc;
 }
 .alert-danger {
-  color: #a94442;
   background-color: #a94442;
   border-color: #ebccd1;
 }
@@ -91,8 +88,32 @@
 }
 
 /* Custom app styles */
-a, h1, h2, p, label, th {
+a, h1, h2, h3, p, label, th {
   color: white;
+}
+
+h1 {
+  font-size: x-large;
+}
+
+h2 {
+  font-size: large;
+}
+
+button {
+  font-weight: bold;
+  color: white;
+  border-radius: 0.4rem;
+  border-style: solid;
+}
+
+a {
+  font-weight: bold;
+}
+
+label {
+  padding: 1px;
+  font-weight: bold;
 }
 
 input {

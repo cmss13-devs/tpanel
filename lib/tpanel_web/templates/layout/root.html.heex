@@ -21,6 +21,7 @@
               <li><%= link "Debug", to: Routes.live_dashboard_path(@conn, :home), class: "hover:text-gray-200" %></li>
           <% end %>
         </ul>
+      <%= render "_user_menu.html", assigns %>
     </nav>
   </section>
 </div>

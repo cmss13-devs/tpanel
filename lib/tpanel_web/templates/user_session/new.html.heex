@@ -1,0 +1,30 @@
+<h1 class="text-3xl">Log in</h1>
+
+<.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user} class="p-4">
+  <%= if @error_message do %>
+    <div class="alert alert-danger text-white">
+      <p><%= @error_message %></p>
+    </div>
+  <% end %>
+
+  <table>
+  <tr>
+  <td><%= label f, :email %></td>
+  <td><%= email_input f, :email, required: true %></td>
+  </tr>
+
+  <tr>
+    <td class="pr-5"><%= label f, :password %></td>
+    <td><%= password_input f, :password, required: true %></td>
+  </tr>
+  </table>
+ 
+  <div class="py-3">
+  <%= label f, :remember_me, "Keep me logged in for 60 days" %>
+  <%= checkbox f, :remember_me %>
+  </div>
+
+  <div>
+    <%= submit "Log in", class: "bg-blue-600 hover:bg-blue-800 p-1 px-2" %>
+  </div>
+</.form>

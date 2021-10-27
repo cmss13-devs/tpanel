@@ -1,6 +1,8 @@
 defmodule TpanelWeb.Router do
   use TpanelWeb, :router
 
+  import TpanelWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule TpanelWeb.Router do
     plug :put_root_layout, {TpanelWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -18,7 +21,6 @@ defmodule TpanelWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    resources "/mixes", TestMixController, only: [:new, :create, :show, :index]
   end
 
   # Other scopes may use custom stacks.
@@ -52,5 +54,28 @@ defmodule TpanelWeb.Router do
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  ## Authentication routes
+
+  scope "/", TpanelWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    get "/users/log_in", UserSessionController, :new
+    post "/users/log_in", UserSessionController, :create
+  end
+
+  scope "/", TpanelWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    resources "/mixes", TestMixController, only: [:new, :create, :show, :index]
+    get "/users/settings", UserSettingsController, :edit
+    put "/users/settings", UserSettingsController, :update
+  end
+
+  scope "/", TpanelWeb do
+    pipe_through [:browser]
+
+    delete "/users/log_out", UserSessionController, :delete
   end
 end
