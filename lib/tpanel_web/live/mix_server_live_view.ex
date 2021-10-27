@@ -32,6 +32,12 @@ defmodule TpanelWeb.MixServerLiveView do
     {:noreply, socket}
   end
 
+  def handle_event("launch_mix", _stuff, socket) do
+    socket = get_mixserver(socket)
+    GenServer.cast(socket.assigns.mixserver, :mix)
+    {:noreply, socket}
+  end
+
   def handle_event("launch_build", _stuff, socket) do
     socket = get_mixserver(socket)
     GenServer.cast(socket.assigns.mixserver, :build)

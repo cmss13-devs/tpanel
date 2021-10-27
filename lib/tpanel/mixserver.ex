@@ -102,11 +102,21 @@ defmodule Tpanel.MixServer do
   end
 
   @impl true
+  def handle_cast(:mix, %State{} = state) do
+    {:noreply,
+    state
+    |> reload_mix()
+    |> do_mix()
+    }
+  end
+
+  @impl true
   def handle_cast(:build, %State{} = state) do
     {:noreply,
     state
     |> reload_mix()
-    |> do_build()
+    |> do_mix()
+    |> do_docker_build()
     }
   end
 
@@ -160,14 +170,13 @@ defmodule Tpanel.MixServer do
     state
   end
 
-  def do_build(%State{} = state) do
+  def do_mix(%State{} = state) do
     base_branch  = Enum.at(state.test_mix.branches, 0)
     branches = Enum.drop(state.test_mix.branches, 1)
     if base_branch == nil do
       send_error(state, "No branches to build from")
       raise "No branches to build"
     end
-    IO.inspect base_branch
     %Rambo{} = run_sync(state, "git", ["rebase", "--abort"], timeout: 10000, log: false)
     %Rambo{status: 0} = run_sync(state, "git", ["reset", "--hard"], timeout: 15000)
     base_rev = Tpanel.GitTools.default_rev(base_branch)
@@ -178,10 +187,17 @@ defmodule Tpanel.MixServer do
       %Rambo{status: 0} = run_sync(state, "git", ["rebase", "HEAD", target_rev], timeout: 10000)
       Tpanel.GitTools.update_branch(branch, %{built_revision: target_rev})
     end)
-    build_time = DateTime.now!("Etc/UTC")
-    Tpanel.GitTools.update_test_mix(state.test_mix, %{last_build: build_time})
     TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
     send_info(state, "Successfully applied branches via rebase")
     state
   end
+
+  def do_docker_build(%State{} = state) do
+    %Rambo{status: 0} = run_sync(state, "docker", ["build", "--target", "deploy", "--tag", "tpanel-#{state.test_mix.name}", "."], timeout: 240000)
+    build_time = DateTime.now!("Etc/UTC")
+    Tpanel.GitTools.update_test_mix(state.test_mix, %{last_build: build_time})
+    TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
+    send_info(state, "Built image as tag tpanel-#{state.test_mix.name}")
+  end 
+ 
 end

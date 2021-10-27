@@ -3,7 +3,8 @@
   <button phx-click="start_mixserver" class="text-white p-1 px-5 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Start</button>
 <% else %>
   <button phx-click="update_mixserver" class="text-white p-1 px-4 bg-green-500 hover:bg-green-700 font-bold rounded inline-block">Fetch</button>
-  <button phx-click="launch_build" class="text-white ml-3 p-1 px-5 bg-indigo-600 hover:bg-red-600 font-bold rounded inline-block">Build</button>
+  <button phx-click="launch_mix" class="text-white ml-3 p-1 px-5 bg-indigo-600 hover:bg-purple-600 font-bold rounded inline-block">Mix</button>
+  <button phx-click="launch_build" class="text-white ml-3 p-1 px-5 bg-purple-600 hover:bg-red-600 font-bold rounded inline-block">Build</button>
 <% end %>
   <button class="text-white ml-3 p-1 px-4 bg-red-700 hover:bg-red:800 font-bold rounded inline-block" onclick="document.getElementsByName('mixout')[0].innerHTML = ''">Clear</button>
 </div>
