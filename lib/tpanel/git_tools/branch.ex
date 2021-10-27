@@ -21,7 +21,7 @@ defmodule Tpanel.GitTools.Branch do
     |> validate_format(:name, ~r/^[0-9a-zA-Z\-_]+/)
     |> validate_format(:remote, ~r/^[0-9a-zA-Z\-_\/:%@]+/)
     |> validate_format(:refspec, ~r/^[0-9a-zA-Z\-_\/]+/)
-    |> validate_format(:target_revision, ~r/^[[:alnum:]]{40}$/)
+    |> validate_format(:target_revision, ~r/^[[:alnum:]]{40}|$/)
     |> validate_format(:fetched_revision, ~r/^[[:alnum:]]{40}$/)
     |> validate_format(:built_revision, ~r/^[[:alnum:]]{40}$/)
     |> assoc_constraint(:test_mix)

@@ -8,8 +8,9 @@ defmodule TpanelWeb.MixServerLiveView do
   def mount(_params, %{"test_mix_id" => mix_id}, socket) do
     TpanelWeb.Endpoint.subscribe("mixserver_#{mix_id}")
     {:ok, 
-     assign(socket, mix_id: mix_id, msg_id: 1, mixserver: [], messages: [], temporary_assigns: [messages: []])
-     |> scan_mixserver()
+     assign(socket, clear: 0, mix_id: mix_id, msg_id: 1, mixserver: [], messages: [])
+     |> scan_mixserver(),
+     temporary_assigns: [messages: []]
     }
   end
 
@@ -29,6 +30,16 @@ defmodule TpanelWeb.MixServerLiveView do
     socket = get_mixserver(socket)
     GenServer.cast(socket.assigns.mixserver, :fetch)
     {:noreply, socket}
+  end
+
+  def handle_event("launch_build", _stuff, socket) do
+    socket = get_mixserver(socket)
+    GenServer.cast(socket.assigns.mixserver, :build)
+    {:noreply, socket}
+  end
+
+  def handle_event("clear_view", _stuff, socket) do
+    {:noreply, assign(socket, clear: socket.assigns.clear + 1)}
   end
 
   def handle_info(%{event: event, payload: payload}, socket) do

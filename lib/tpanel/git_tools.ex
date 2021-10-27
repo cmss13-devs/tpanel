@@ -102,6 +102,14 @@ defmodule Tpanel.GitTools do
     Branch.changeset(branch, attrs)
   end
 
+  def default_rev(%Branch{} = branch) do
+    if is_nil(branch.target_revision) or String.length(branch.target_revision) == 0 do
+      branch.fetched_revision
+    else
+      branch.target_revision
+    end
+  end
+
   alias Tpanel.GitTools.TestMix
 
   @doc """

@@ -35,18 +35,26 @@
            String.slice(branch.fetched_revision, 0..11)
          end %>
     </td>
-    <td class={if branch.fetched_revision == branch.built_revision do "text-green-400" else "text-red-600" end}>
+    <%= if is_nil(branch.target_revision) do %>
+      <td class={if branch.fetched_revision == branch.built_revision do "text-green-400" else "text-red-600" end}>
       <%= if not is_nil(branch.built_revision) do
            String.slice(branch.built_revision, 0..11)
          end %>
-    </td>
+      </td>
+    <% else %>
+      <td class={if branch.target_revision == branch.built_revision do "text-green-400" else "text-red-600" end}>
+      <%= if not is_nil(branch.built_revision) do
+           String.slice(branch.built_revision, 0..11)
+         end %>
+      </td>
+    <% end %>
   </tr>
 <% end %>
     </tbody>
   </table>
 </div>
 
-<div class="py-2">
+<div class="pl-4 py-2">
   <.form let={f} for={@changeset} phx-submit="create_branch">
     <div>
       <span class="pr-4">

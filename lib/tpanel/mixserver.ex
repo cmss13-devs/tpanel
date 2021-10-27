@@ -56,7 +56,7 @@ defmodule Tpanel.MixServer do
        {:stdout, output} -> push_output(state.output_topic, "stdout", output)
        {:stderr, output} -> push_output(state.output_topic, "stderr", output)
     end
-    {_, opts} = Keyword.get_and_update(opts, :log, fn 
+    {logopt, opts} = Keyword.get_and_update(opts, :log, fn 
       true -> {true, logger}
       nil -> {nil, logger}
       val -> {val, false}
@@ -64,7 +64,10 @@ defmodule Tpanel.MixServer do
     task = Task.async(fn ->
       Rambo.run(mission, arguments, opts)
     end)
-    {:ok, %Rambo{} = ret} = Task.await(task, timeout)
+    {_term, %Rambo{} = ret} = Task.await(task, timeout)
+    if logopt do
+      send_event(state, "status", %{status: ret.status})
+    end
     ret
   end
 
@@ -85,6 +88,7 @@ defmodule Tpanel.MixServer do
   def handle_continue(:deferred_init, %State{} = state) do
     init_workdir(state) 
     TpanelWeb.Endpoint.subscribe(state.update_topic)
+    send_event(state, "reloaded", %{})
     {:noreply, state}
   end
 
@@ -94,6 +98,15 @@ defmodule Tpanel.MixServer do
     state
     |> reload_mix()
     |> fetch_remotes()
+    }
+  end
+
+  @impl true
+  def handle_cast(:build, %State{} = state) do
+    {:noreply,
+    state
+    |> reload_mix()
+    |> do_build()
     }
   end
 
@@ -144,8 +157,31 @@ defmodule Tpanel.MixServer do
     Tpanel.GitTools.update_test_mix(state.test_mix, %{last_fetch: fetch_time})
     TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
     send_info(state, "Done fetching remotes at #{fetch_time}")
-    send_event(state, "reloaded", %{})
     state
   end
 
+  def do_build(%State{} = state) do
+    base_branch  = Enum.at(state.test_mix.branches, 0)
+    branches = Enum.drop(state.test_mix.branches, 1)
+    if base_branch == nil do
+      send_error(state, "No branches to build from")
+      raise "No branches to build"
+    end
+    IO.inspect base_branch
+    %Rambo{} = run_sync(state, "git", ["rebase", "--abort"], timeout: 10000, log: false)
+    %Rambo{status: 0} = run_sync(state, "git", ["reset", "--hard"], timeout: 15000)
+    base_rev = Tpanel.GitTools.default_rev(base_branch)
+    %Rambo{status: 0} = run_sync(state, "git", ["checkout", base_rev], timeout: 15000, log: false)
+    Tpanel.GitTools.update_branch(base_branch, %{built_revision: base_rev})
+    Enum.each(branches, fn branch ->
+      target_rev = Tpanel.GitTools.default_rev(branch)
+      %Rambo{status: 0} = run_sync(state, "git", ["rebase", "HEAD", target_rev], timeout: 10000)
+      Tpanel.GitTools.update_branch(branch, %{built_revision: target_rev})
+    end)
+    build_time = DateTime.now!("Etc/UTC")
+    Tpanel.GitTools.update_test_mix(state.test_mix, %{last_build: build_time})
+    TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
+    send_info(state, "Successfully applied branches via rebase")
+    state
+  end
 end
