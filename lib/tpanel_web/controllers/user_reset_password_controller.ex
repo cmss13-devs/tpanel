@@ -9,13 +9,13 @@ defmodule TpanelWeb.UserResetPasswordController do
     render(conn, "new.html")
   end
 
-  def create(conn, %{"user" => %{"email" => email}}) do
-    if user = Accounts.get_user_by_email(email) do
-      Accounts.deliver_user_reset_password_instructions(
-        user,
-        &Routes.user_reset_password_url(conn, :edit, &1)
-      )
-    end
+  def create(conn, %{"user" => %{"email" => _email}}) do
+#    if user = Accounts.get_user_by_email(email) do
+#      Accounts.deliver_user_reset_password_instructions(
+#        user,
+#        &Routes.user_reset_password_url(conn, :edit, &1)
+#      )
+#    end
 
     # In order to prevent user enumeration attacks, regardless of the outcome, show an impartial success/error message.
     conn

@@ -1,0 +1,43 @@
+version: '3.6'
+
+services:
+  tpanel-pg:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: tpanel
+      POSTGRES_PASSWORD: somethingreally
+      POSTGRES_DB: tpanel
+    volumes:
+      - tpanel-db:/var/lib/postgresql/data
+    networks:
+      - tpanel-net
+
+  tpanel-phx:
+    build:
+      context: .
+    restart: always
+    environment:
+      MIX_ENV: prod
+      NODE_ENV: production
+      DATABASE_URL: ecto://tpanel:somethingreally@tpanel-pg/tpanel
+      SECRET_KEY_BASE: IzYpKnj5NgNOqu5NV8PUQBWH82nw9gyJg5HQj4mQENKkklDHv9AjvvoBgpZ0KB16
+    ports:
+      - 4000:4000
+    volumes:
+      - tpanel-cache:/app/workdir
+    networks:
+      - tpanel-net
+    depends_on:
+      - tpanel-pg
+
+volumes:
+  tpanel-db:
+    external: true
+  tpanel-cache:
+    external: true
+
+networks:
+  tpanel-net:
+    driver: bridge
+
