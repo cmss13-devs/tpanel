@@ -193,7 +193,7 @@ defmodule Tpanel.MixServer do
   end
 
   def do_docker_build(%State{} = state) do
-    %Rambo{status: 0} = run_sync(state, "docker", ["build", "--target", "deploy", "--tag", "tpanel:#{state.test_mix.name}", "."], timeout: 240000)
+    %Rambo{status: 0} = run_sync(state, "docker", ["build", "--target", "deploy", "--tag", "cm13-tpanel:#{state.test_mix.name}", "."], timeout: 240000, env: %{"DOCKER_BUILDKIT" => "1"})
     build_time = DateTime.now!("Etc/UTC")
     Tpanel.GitTools.update_test_mix(state.test_mix, %{last_build: build_time})
     TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})

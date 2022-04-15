@@ -26,6 +26,11 @@ services:
       - 4000:4000
     volumes:
       - tpanel-cache:/app/workdir
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: ./config/custom.exs
+        target: /app/config/prod.exs
+        read_only: true
     networks:
       - tpanel-net
     depends_on:

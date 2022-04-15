@@ -34,5 +34,7 @@ npm-debug.log
 
 .*.swp
 
+/config/custom.exs
+
 /workdir
 !/workdir/.keep
