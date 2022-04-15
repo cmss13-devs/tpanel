@@ -30,6 +30,8 @@ This is a rough draft and work in progress.
  * mix tpanel.new\_user someemail@example.com
  * hit up `http://localhost:4000`
 
+Alternatively use the docker deployment with the provided Dockerfile / docker-compose.yml
+
 ## High level overview
  
  * TestMix and Branch models are managed together through GitTools module
@@ -45,6 +47,6 @@ This is a rough draft and work in progress.
  * No queuing beyond GenServer internal queue: if you click Mix/Build 10 times, it'll happen 10 times
  * Console display should be a proper fixed, resizeable, scrollable div but long-term browser issues with flex-col-reverse made this complicated
  * Directly sending terminal output via PubSub means linewrap doesn't match eg. git output
- * Lacking test fixtures
+ * Lacking tests and fixtures
  * Probably more
 
