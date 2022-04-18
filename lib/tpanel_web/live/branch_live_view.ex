@@ -1,5 +1,6 @@
 defmodule TpanelWeb.BranchLiveView do
   use TpanelWeb, :live_view
+  import TpanelWeb.FormatHelper
 
   def pub_event(socket, event) do
     TpanelWeb.Endpoint.broadcast_from(self(), "mix_#{socket.assigns.mix.id}", event, %{})

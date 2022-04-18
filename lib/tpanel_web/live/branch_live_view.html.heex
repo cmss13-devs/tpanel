@@ -29,29 +29,14 @@
      <span class="font-bold"><%= branch.refspec %></span>
      @ <%= branch.remote %>
     </td>
+    <td><%= shorthand_revision(branch.target_revision) %></td> 
+    <td><%= shorthand_revision(branch.fetched_revision) %></td>
     <td>
-      <%= if not is_nil(branch.target_revision) do
-           String.slice(branch.target_revision, 0..11)
-         end %>
+      <%= colorize_match(
+            shorthand_revision(branch.built_revision),
+            shorthand_revision(branch.fetched_revision)
+          ) %>
     </td>
-    <td>
-      <%= if not is_nil(branch.fetched_revision) do
-           String.slice(branch.fetched_revision, 0..11)
-         end %>
-    </td>
-    <%= if is_nil(branch.target_revision) do %>
-      <td class={if branch.fetched_revision == branch.built_revision do "text-green-400" else "text-red-600" end}>
-      <%= if not is_nil(branch.built_revision) do
-           String.slice(branch.built_revision, 0..11)
-         end %>
-      </td>
-    <% else %>
-      <td class={if branch.target_revision == branch.built_revision do "text-green-400" else "text-red-600" end}>
-      <%= if not is_nil(branch.built_revision) do
-           String.slice(branch.built_revision, 0..11)
-         end %>
-      </td>
-    <% end %>
   </tr>
 <% end %>
     </tbody>
