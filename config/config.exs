@@ -8,7 +8,10 @@
 import Config
 
 config :tpanel,
-  ecto_repos: [Tpanel.Repo]
+  ecto_repos: [Tpanel.Repo],
+  build_cpu_shares: 128,
+  build_image_name: "cm13-tpanel",
+  build_timeout: 240000
 
 # Configures the endpoint
 config :tpanel, TpanelWeb.Endpoint,

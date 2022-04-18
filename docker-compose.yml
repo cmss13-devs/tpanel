@@ -14,8 +14,7 @@ services:
       - tpanel-net
 
   tpanel-phx:
-    build:
-      context: .
+    image: tpanel
     restart: always
     environment:
       MIX_ENV: prod

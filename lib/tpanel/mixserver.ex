@@ -97,7 +97,7 @@ defmodule Tpanel.MixServer do
     {:noreply, 
     state
     |> reload_mix()
-    |> fetch_remotes()
+    |> do_fetch()
     }
   end
 
@@ -116,7 +116,7 @@ defmodule Tpanel.MixServer do
     state
     |> reload_mix()
     |> do_mix()
-    |> do_docker_build()
+    |> do_build()
     }
   end
 
@@ -143,14 +143,14 @@ defmodule Tpanel.MixServer do
       File.mkdir!(state.workdir)
       run_sync(state, "git", ["init"])
     end
-    fetch_remotes(state)
+    do_fetch(state)
   end
 
   @doc """
   Update contents of the TestMix git repo, tracking remotes 
   set in the database model and fetching remote branches
   """
-  def fetch_remotes(%State{} = state) do
+  def do_fetch(%State{} = state) do
     Enum.each(state.test_mix.branches, fn branch ->
       %Rambo{status: 0} = run_sync(state, "git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], timeout: 120000)
       %Rambo{status: 0, out: rev} = run_sync(state, "git", ["rev-parse", branch.name], log: false)
@@ -192,12 +192,37 @@ defmodule Tpanel.MixServer do
     state
   end
 
-  def do_docker_build(%State{} = state) do
-    %Rambo{status: 0} = run_sync(state, "docker", ["build", "--target", "deploy", "--tag", "cm13-tpanel:#{state.test_mix.name}", "."], timeout: 240000, env: %{"DOCKER_BUILDKIT" => "1"})
+  @doc """
+  Runs the build associated to the TestMix
+  """
+  def do_build(%State{} = state) do
+    state
+    |> do_docker_build()
+    |> refresh_build()
+    |> send_info("Built successfully")
+    TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
+    state
+  end 
+
+  @doc """
+  Update last build time
+  """
+  def refresh_build(%State{} = state) do
     build_time = DateTime.now!("Etc/UTC")
     Tpanel.GitTools.update_test_mix(state.test_mix, %{last_build: build_time})
-    TpanelWeb.Endpoint.broadcast("mix_#{state.test_mix_id}", "updated", %{})
-    send_info(state, "Built image as tag tpanel-#{state.test_mix.name}")
-  end 
+    state
+  end
  
+  @doc """
+  Invokes the external docker build process
+  """ 
+  def do_docker_build(%State{} = state) do
+    cpu_shares = Application.get_env(:tpanel, :build_cpu_shares)
+    timeout = Application.get_env(:tpanel, :build_timeout)
+    target_tag = "#{Application.get_env(:tpanel, :build_image_name)}:#{state.test_mix.name}"
+    cmd_args = ["build", "--cpu-shares=#{cpu_shares}", "--build-arg", "BUILD_TYPE=standalone", "--target", "deploy", "--tag", target_tag, "."]
+    %Rambo{status: 0} = run_sync(state, "docker", cmd_args, timeout: timeout, env: %{"DOCKER_BUILDKIT" => "1"})
+    state
+  end
+
 end
