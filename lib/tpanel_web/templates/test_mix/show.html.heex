@@ -1,10 +1,11 @@
 <%= link "Back", to: Routes.test_mix_path(@conn, :index), class: "text-white p-1 px-2 bg-red-800 hover:bg-red-900 font-bold rounded inline-block" %>
 <h1 class="text-3xl pl-4 font-heading inline-block">TestMix: <%= @test_mix.name %></h1>
-<div class="p-1">
-  <div class="py-1">
+<div class="py-8">
+  <div class="py-4">
     <%= live_render(@conn, TpanelWeb.BranchLiveView, session: %{"test_mix_id" => @test_mix.id}) %>
   </div> 
-  <div class="p-1">
+  <hr/>
+  <div class="p-2">
     <%= live_render(@conn, TpanelWeb.MixServerLiveView, session: %{"test_mix_id" => @test_mix.id}) %>
   </div>
 </div>
