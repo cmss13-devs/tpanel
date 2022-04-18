@@ -152,7 +152,7 @@ defmodule Tpanel.MixServer do
   """
   def do_fetch(%State{} = state) do
     Enum.each(state.test_mix.branches, fn branch ->
-      %Rambo{status: 0} = run_sync(state, "git", ["fetch", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], timeout: 120000)
+      %Rambo{status: 0} = run_sync(state, "git", ["fetch", "-u", "--force", branch.remote, "#{branch.refspec}:#{branch.name}"], timeout: 120000)
       %Rambo{status: 0, out: rev} = run_sync(state, "git", ["rev-parse", branch.name], log: false)
       rev = String.replace(rev, "\n", "")
       if not String.match?(rev, ~r/^[[:alnum:]]{40}$/) do
