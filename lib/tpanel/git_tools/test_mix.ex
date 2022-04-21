@@ -15,7 +15,7 @@ defmodule Tpanel.GitTools.TestMix do
     test_mix
     |> cast(attrs, [:name, :last_fetch, :last_build])
     |> validate_required([:name])
-    |> validate_format(:name, ~r/^[0-9a-zA-Z\-_]+/)
+    |> validate_format(:name, ~r/^[0-9a-zA-Z\-_]+$/)
     |> unique_constraint(:name)
   end
 end
