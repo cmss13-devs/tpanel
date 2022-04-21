@@ -22,4 +22,27 @@ defmodule Tpanel.MixSupervisor do
         end
     end
   end
+
+  def register_task(mix_id, pid) do
+    Registry.register(Tpanel.MixRegistry, "mixtask_#{mix_id}", pid)
+  end
+
+  def clear_task(mix_id) do
+    Registry.unregister(Tpanel.MixRegistry, "mixtask_#{mix_id}")
+  end
+
+  def stop_mixserver(mix_id) do
+    case Registry.lookup(Tpanel.MixRegistry, "mixserver_#{mix_id}") do
+      [{gs_pid, _val}] -> 
+        GenServer.stop(gs_pid)
+        case Registry.lookup(Tpanel.MixRegistry, "mixtask_#{mix_id}") do
+          [val] ->
+            IO.inspect val
+            clear_task(mix_id)
+            Rambo.kill(val)
+          [] -> []
+        end
+      [] -> []
+    end
+  end
 end

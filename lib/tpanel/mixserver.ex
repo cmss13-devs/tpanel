@@ -16,6 +16,11 @@ defmodule Tpanel.MixServer do
     GenServer.start_link(__MODULE__, state, name: process_name(state))
   end
 
+  @impl true
+  def terminate(_reasonn, %State{} = state) do
+    send_event(state, "killed", %{})
+  end
+
   defp process_name(%State{} = state) do
     {:via, Registry, {Tpanel.MixRegistry, "mixserver_#{state.test_mix_id}"}}
   end
@@ -64,7 +69,9 @@ defmodule Tpanel.MixServer do
     task = Task.async(fn ->
       Rambo.run(mission, arguments, opts)
     end)
+    Tpanel.MixSupervisor.register_task(state.test_mix_id, task.pid)
     {_term, %Rambo{} = ret} = Task.await(task, timeout)
+    Tpanel.MixSupervisor.clear_task(state.test_mix_id)
     if logopt do
       send_event(state, "status", %{status: ret.status})
     end
@@ -102,15 +109,6 @@ defmodule Tpanel.MixServer do
   end
 
   @impl true
-  def handle_cast(:mix, %State{} = state) do
-    {:noreply,
-    state
-    |> reload_mix()
-    |> do_mix()
-    }
-  end
-
-  @impl true
   def handle_cast(:build, %State{} = state) do
     {:noreply,
     state
@@ -142,8 +140,8 @@ defmodule Tpanel.MixServer do
     if not File.exists?(state.workdir) do
       File.mkdir!(state.workdir)
       run_sync(state, "git", ["init"])
+      do_fetch(state)
     end
-    do_fetch(state)
   end
 
   @doc """

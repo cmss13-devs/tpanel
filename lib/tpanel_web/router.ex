@@ -68,7 +68,7 @@ defmodule TpanelWeb.Router do
   scope "/", TpanelWeb do
     pipe_through [:browser, :require_authenticated_user]
 
-    resources "/mixes", TestMixController, only: [:new, :create, :show, :index]
+    resources "/mixes", TestMixController, only: [:new, :delete, :create, :show, :index]
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
   end

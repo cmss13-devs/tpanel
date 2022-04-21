@@ -32,9 +32,8 @@ defmodule TpanelWeb.MixServerLiveView do
     {:noreply, socket}
   end
 
-  def handle_event("launch_mix", _stuff, socket) do
-    socket = get_mixserver(socket)
-    GenServer.cast(socket.assigns.mixserver, :mix)
+  def handle_event("stop_mixserver", _stuff, socket) do
+    Tpanel.MixSupervisor.stop_mixserver(socket.assigns.mix_id)
     {:noreply, socket}
   end
 
@@ -49,10 +48,11 @@ defmodule TpanelWeb.MixServerLiveView do
   end
 
   def handle_info(%{event: event, payload: payload}, socket) do
-    if event == "reloaded" do
-      {:noreply, scan_mixserver(socket)}
-    else
-      {:noreply, handle_payload(event, payload, socket)}
+    case event do
+      "reloaded" -> {:noreply, scan_mixserver(socket)}
+      "killed" -> {:noreply, assign(socket, mixserver: [])}
+      "deleted" -> {:noreply, assign(socket, mixserver: [])}
+      _ -> {:noreply, handle_payload(event, payload, socket)} 
     end
   end
 

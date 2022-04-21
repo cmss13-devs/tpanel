@@ -7,12 +7,13 @@
 .alert {
   padding: 15px;
   margin-bottom: 20px;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: 4px solid transparent;
+  border-radius: 1rem;
+  font-weight: bolder;
 }
 .alert-info {
-  background-color: #d9edf7;
-  border-color: #bce8f1;
+  background-color: rgb(99 102 241);
+  border-color: rgb(67 56 202);
 }
 .alert-warning {
   background-color: #fcf8e3;
@@ -103,8 +104,24 @@ h2 {
 button {
   font-weight: bold;
   color: white;
-  border-radius: 0.4rem;
+  border-radius: 0.25rem;
   border-style: solid;
+}
+
+.b-blue {
+  background-color: rgb(37 99 235);
+}
+
+.b-blue:hover {
+  background-color: rgb(55 48 163);
+}
+
+.b-red {
+  background-color: rgb(153 27 27);
+}
+
+.b-red:hover {
+  background-color: rgb(220 38 38);
 }
 
 a {

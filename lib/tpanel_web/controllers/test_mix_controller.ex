@@ -45,6 +45,7 @@ defmodule TpanelWeb.TestMixController do
   end
 
   def delete(conn, %{"id" => id}) do
+    Tpanel.MixSupervisor.stop_mixserver(id)
     test_mix = GitTools.get_test_mix!(id)
     {:ok, _test_mix} = GitTools.delete_test_mix(test_mix)
 

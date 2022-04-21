@@ -88,6 +88,17 @@ defmodule TpanelWeb.BranchLiveView do
   def handle_info(%{event: "updated"}, socket) do
     {:noreply, reload_mix(socket)}
   end
+  
+  def handle_info(%{event: "killed"}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_info(%{event: "deleted"}, socket) do
+    {:noreply, socket
+    |> put_flash(:error, "The TestMix has been deleted!")
+    |> redirect(to: Routes.test_mix_path(socket, :index))
+    }
+  end
 
   def handle_info(:refresh, socket) do
     Process.send_after(self(), :refresh, 120000)
